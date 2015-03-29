@@ -1,236 +1,301 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
- * Copyright (C) 2012 The Evervolv Project
- *      Andrew Sutherland <dr3wsuth3rland@gmail.com>
+ * Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * *    * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *     * Neither the name of The Linux Foundation nor the names of its
+ *       contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <dlfcn.h>
+#include <stdlib.h>
 
-#define LOG_TAG "PowerHAL"
+#define LOG_TAG "QCOM PowerHAL"
+
 #include <utils/Log.h>
+#include <cutils/properties.h>
 
 #include <hardware/hardware.h>
 #include <hardware/power.h>
 
-#define BOOSTPULSE_ONDEMAND "/sys/devices/system/cpu/cpufreq/ondemand/boostpulse"
-#define BOOSTPULSE_INTERACTIVE "/sys/devices/system/cpu/cpufreq/interactive/boostpulse"
-#define FREQ_BUF_SIZE 10
+#include "metadata-defs.h"
 
-static char scaling_max_freq[FREQ_BUF_SIZE]   = "998400";
-static char screenoff_max_freq[FREQ_BUF_SIZE] = "614400";
+#define SCALING_GOVERNOR_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+#define ONDEMAND_PATH "/sys/devices/system/cpu/cpufreq/ondemand/"
+#define ONDEMAND_IO_BUSY_PATH "/sys/devices/system/cpu/cpufreq/ondemand/io_is_busy"
+#define ONDEMAND_SAMPLING_DOWN_PATH "/sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor"
 
-struct qsd8k_power_module {
-    struct power_module base;
-    pthread_mutex_t lock;
-    int boostpulse_fd;
-    int boostpulse_warned;
-};
+static int (*perf_vote_turnoff_ondemand_io_busy)(int vote);
+static int perf_vote_ondemand_io_busy_unavailable;
+static int (*perf_vote_lower_ondemand_sdf)(int vote);
+static int perf_vote_ondemand_sdf_unavailable;
+static void *qcopt_handle;
+static int qcopt_handle_unavailable;
+static int saved_ondemand_sampling_down_factor = 4;
+static int saved_ondemand_io_is_busy_status = 1;
 
-static void sysfs_write(char *path, char *s)
+static void *get_qcopt_handle()
+{
+    if (qcopt_handle_unavailable) {
+        return NULL;
+    }
+
+    if (!qcopt_handle) {
+        char qcopt_lib_path[PATH_MAX] = {0};
+        dlerror();
+
+        if (property_get("ro.vendor.extension_library", qcopt_lib_path,
+                    NULL) != 0) {
+            if((qcopt_handle = dlopen(qcopt_lib_path, RTLD_NOW)) == NULL) {
+                qcopt_handle_unavailable = 1;
+                ALOGE("Unable to open %s: %s\n", qcopt_lib_path,
+                        dlerror());
+            }
+        } else {
+            qcopt_handle_unavailable = 1;
+            ALOGE("Property ro.vendor.extension_library does not exist.");
+        }
+    }
+
+    return qcopt_handle;
+}
+
+static int sysfs_read(char *path, char *s, int num_bytes)
+{
+    char buf[80];
+    int count;
+    int ret = 0;
+    int fd = open(path, O_RDONLY);
+
+    if (fd < 0) {
+        strerror_r(errno, buf, sizeof(buf));
+        ALOGE("Error opening %s: %s\n", path, buf);
+
+        return -1;
+    }
+
+    if ((count = read(fd, s, num_bytes - 1)) < 0) {
+        strerror_r(errno, buf, sizeof(buf));
+        ALOGE("Error writing to %s: %s\n", path, buf);
+
+        ret = -1;
+    } else {
+        s[count] = '\0';
+    }
+
+    close(fd);
+
+    return ret;
+}
+
+static int sysfs_write(char *path, char *s)
 {
     char buf[80];
     int len;
+    int ret = 0;
     int fd = open(path, O_WRONLY);
 
     if (fd < 0) {
         strerror_r(errno, buf, sizeof(buf));
         ALOGE("Error opening %s: %s\n", path, buf);
-        return;
+        return -1 ;
     }
 
     len = write(fd, s, strlen(s));
     if (len < 0) {
         strerror_r(errno, buf, sizeof(buf));
         ALOGE("Error writing to %s: %s\n", path, buf);
+
+        ret = -1;
     }
 
     close(fd);
-}
 
-static int sysfs_read(char *path, char *s, size_t l)
-{
-    char buf[80];
-    int len = -1;
-    int fd = open(path, O_RDONLY);
-
-    if (fd < 0) {
-        strerror_r(errno, buf, sizeof(buf));
-        ALOGE("Error opening %s: %s\n", path, buf);
-        return len;
-    }
-
-    do {
-        len = read(fd, s, l);
-    } while (len < 0 && errno == EINTR); // Retry if interrupted
-
-    if (len < 0) {
-        strerror_r(errno, buf, sizeof(buf));
-        ALOGE("Error reading from %s: %s\n", path, buf);
-    } else {
-        s[len - 1] = '\0'; /* Kill the newline */
-    }
-
-    close(fd);
-    return len;
-}
-
-static int get_scaling_governor(char *governor, size_t size)
-{
-
-    if (sysfs_read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-             governor, size) < 0)
-        return -1;
-
-    return 0;
-}
-
-static int boostpulse_open(struct qsd8k_power_module *qsd8k)
-{
-    char buf[80];
-    char governor[80];
-
-    pthread_mutex_lock(&qsd8k->lock);
-
-    if (qsd8k->boostpulse_fd < 0) {
-        if (get_scaling_governor(governor, sizeof(governor)) < 0) {
-            ALOGE("Can't read scaling governor.");
-            qsd8k->boostpulse_warned = 1;
-        } else {
-            if (strncmp(governor, "ondemand", 8) == 0)
-                qsd8k->boostpulse_fd = open(BOOSTPULSE_ONDEMAND, O_WRONLY);
-            else if (strncmp(governor, "interactive", 11) == 0)
-                qsd8k->boostpulse_fd = open(BOOSTPULSE_INTERACTIVE, O_WRONLY);
-
-            if (qsd8k->boostpulse_fd < 0 && !qsd8k->boostpulse_warned) {
-                strerror_r(errno, buf, sizeof(buf));
-                ALOGE("Error opening %s boostpulse interface: %s\n", governor, buf);
-                qsd8k->boostpulse_warned = 1;
-            } else if (qsd8k->boostpulse_fd > 0)
-                ALOGD("Opened %s boostpulse interface", governor);
-        }
-    }
-
-    pthread_mutex_unlock(&qsd8k->lock);
-    return qsd8k->boostpulse_fd;
-}
-
-static void qsd8k_power_init(struct power_module *module)
-{
-}
-
-static void qsd8k_power_set_interactive(struct power_module *module, int on)
-{
-    /*
-     * Dynamically change cpu settings depending on screen on/off state
-     */
-
-    char buf[FREQ_BUF_SIZE];
-    int len = -1;
-    char governor[80];
-    struct qsd8k_power_module *qsd8k = (struct qsd8k_power_module *) module;
-
-    if (!on) { /* store current max freq so it can be restored */
-        len = sysfs_read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
-                              buf, sizeof(buf));
-        if (len > 0 && strncmp(buf, screenoff_max_freq,
-                                strlen(screenoff_max_freq)) != 0) {
-            strcpy(scaling_max_freq, buf);
-        }
-    }
-
-    /* Reduce max frequency */
-    sysfs_write("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
-                on ? scaling_max_freq : screenoff_max_freq);
-
-    if (get_scaling_governor(governor, sizeof(governor)) < 0) {
-        ALOGE("Can't read scaling governor.");
-        qsd8k->boostpulse_warned = 1;
-    } else {
-        /* Increase sampling rate for ondemand */
-        if (strncmp(governor, "ondemand", 8) == 0)
-            sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/sampling_rate",
-                        on ? "50000" : "500000");
-    }
-
-    /* Increase ksm sleep interval */
-    sysfs_write("/sys/kernel/mm/ksm/sleep_millisecs",
-                on ? "1000" : "5000");
-
-}
-
-static void qsd8k_power_hint(struct power_module *module, power_hint_t hint,
-                            void *data)
-{
-    struct qsd8k_power_module *qsd8k = (struct qsd8k_power_module *) module;
-    char buf[80];
-    int len;
-    int duration = 1;
-
-    switch (hint) {
-    case POWER_HINT_INTERACTION:
-    case POWER_HINT_CPU_BOOST:
-        if (boostpulse_open(qsd8k) >= 0) {
-            if (data != NULL)
-                duration = (int) data;
-            snprintf(buf, sizeof(buf), "%d", duration);
-            len = write(qsd8k->boostpulse_fd, buf, strlen(buf));
-            if (len < 0) {
-                strerror_r(errno, buf, sizeof(buf));
-                ALOGE("Error writing to boostpulse: %s\n", buf);
-                pthread_mutex_lock(&qsd8k->lock);
-                close(qsd8k->boostpulse_fd);
-                qsd8k->boostpulse_fd = -1;
-                qsd8k->boostpulse_warned = 0;
-                pthread_mutex_unlock(&qsd8k->lock);
-            }
-        }
-        break;
-
-    case POWER_HINT_VSYNC:
-        break;
-
-    default:
-        break;
-    }
+    return ret;
 }
 
 static struct hw_module_methods_t power_module_methods = {
     .open = NULL,
 };
 
-struct qsd8k_power_module HAL_MODULE_INFO_SYM = {
-    base: {
-        common: {
-            tag: HARDWARE_MODULE_TAG,
-            module_api_version: POWER_MODULE_API_VERSION_0_2,
-            hal_api_version: HARDWARE_HAL_API_VERSION,
-            id: POWER_HARDWARE_MODULE_ID,
-            name: "QSD8x50 Power HAL",
-            author: "The Evervolv Project",
-            methods: &power_module_methods,
-        },
+void power_init(struct power_module *module)
+{
+    ALOGI("QCOM power HAL initing.");
+}
 
-        init: qsd8k_power_init,
-        setInteractive: qsd8k_power_set_interactive,
-        powerHint: qsd8k_power_hint,
+static int get_scaling_governor(char governor[], int size) {
+    if (sysfs_read(SCALING_GOVERNOR_PATH, governor,
+                size) == -1) {
+        // Can't obtain the scaling governor. Return.
+        return -1;
+    } else {
+        // Strip newline at the end.
+        int len = strlen(governor);
+
+        len--;
+
+        while (len >= 0 && (governor[len] == '\n' || governor[len] == '\r'))
+            governor[len--] = '\0';
+    }
+
+    return 0;
+}
+
+static void process_video_encode_hint(void *metadata)
+{
+    void *handle;
+    char governor[80];
+    struct video_encode_metadata_t video_encode_metadata;
+
+    if (get_scaling_governor(governor, sizeof(governor)) == -1) {
+        ALOGE("Can't obtain scaling governor.");
+
+        return;
+    }
+
+    /* Initialize encode metadata struct fields. */
+    memset(&video_encode_metadata, 0, sizeof(video_encode_metadata));
+    video_encode_metadata.state = -1;
+
+    if (metadata) {
+        if (parse_video_metadata((char *)metadata, &video_encode_metadata) ==
+            -1) {
+            ALOGE("Error occurred while parsing metadata.");
+            return;
+        }
+    } else {
+        return;
+    }
+
+    if ((handle = get_qcopt_handle())) {
+        if (video_encode_metadata.state == 1) {
+            if ((strlen(governor) == strlen("ondemand")) &&
+                    (strncmp(governor, "ondemand", strlen("ondemand")) == 0)) {
+                if (!perf_vote_ondemand_io_busy_unavailable) {
+                    perf_vote_turnoff_ondemand_io_busy = dlsym(handle,
+                            "perf_vote_turnoff_ondemand_io_busy");
+
+                    if (perf_vote_turnoff_ondemand_io_busy) {
+                        /* Vote to turn io_is_busy off */
+                        perf_vote_turnoff_ondemand_io_busy(1);
+                    } else {
+                        perf_vote_ondemand_io_busy_unavailable = 1;
+                        ALOGE("Can't set io_busy_status.");
+                    }
+                }
+
+                if (!perf_vote_ondemand_sdf_unavailable) {
+                    perf_vote_lower_ondemand_sdf = dlsym(handle,
+                            "perf_vote_lower_ondemand_sdf");
+
+                    if (perf_vote_lower_ondemand_sdf) {
+                        perf_vote_lower_ondemand_sdf(1);
+                    } else {
+                        perf_vote_ondemand_sdf_unavailable = 1;
+                        ALOGE("Can't set sampling_down_factor.");
+                    }
+                }
+            }
+        } else if (video_encode_metadata.state == 0) {
+            if ((strlen(governor) == strlen("ondemand")) &&
+                    (strncmp(governor, "ondemand", strlen("ondemand")) == 0)) {
+                if (!perf_vote_ondemand_io_busy_unavailable) {
+                    perf_vote_turnoff_ondemand_io_busy = dlsym(handle,
+                            "perf_vote_turnoff_ondemand_io_busy");
+
+                    if (perf_vote_turnoff_ondemand_io_busy) {
+                        /* Remove vote to turn io_busy off. */
+                        perf_vote_turnoff_ondemand_io_busy(0);
+                    } else {
+                        perf_vote_ondemand_io_busy_unavailable = 1;
+                        ALOGE("Can't set io_busy_status.");
+                    }
+                }
+
+                if (!perf_vote_ondemand_sdf_unavailable) {
+                    perf_vote_lower_ondemand_sdf = dlsym(handle,
+                            "perf_vote_lower_ondemand_sdf");
+
+                    if (perf_vote_lower_ondemand_sdf) {
+                        /* Remove vote to lower sampling down factor. */
+                        perf_vote_lower_ondemand_sdf(0);
+                    } else {
+                        perf_vote_ondemand_sdf_unavailable = 1;
+                        ALOGE("Can't set sampling_down_factor.");
+                    }
+                }
+            }
+        }
+    }
+}
+
+int __attribute__ ((weak)) power_hint_override(struct power_module *module, power_hint_t hint,
+        void *data)
+{
+    return -1;
+}
+
+static void power_hint(struct power_module *module, power_hint_t hint,
+        void *data)
+{
+    /* Check if this hint has been overridden. */
+    if (power_hint_override(module, hint, data) == 0) {
+        /* The power_hint has been handled. We can skip the rest. */
+        return;
+    }
+
+    switch(hint) {
+        case POWER_HINT_VSYNC:
+        break;
+        case POWER_HINT_INTERACTION:
+        break;
+        case POWER_HINT_VIDEO_ENCODE:
+            process_video_encode_hint(data);
+        break;
+    }
+}
+
+void set_interactive(struct power_module *module, int on)
+{
+}
+
+struct power_module HAL_MODULE_INFO_SYM = {
+    .common = {
+        .tag = HARDWARE_MODULE_TAG,
+        .module_api_version = POWER_MODULE_API_VERSION_0_2,
+        .hal_api_version = HARDWARE_HAL_API_VERSION,
+        .id = POWER_HARDWARE_MODULE_ID,
+        .name = "QCOM Power HAL",
+        .author = "Qualcomm",
+        .methods = &power_module_methods,
     },
 
-    lock: PTHREAD_MUTEX_INITIALIZER,
-    boostpulse_fd: -1,
-    boostpulse_warned: 0,
+    .init = power_init,
+    .powerHint = power_hint,
+    .setInteractive = set_interactive,
 };
