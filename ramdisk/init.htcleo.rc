@@ -180,6 +180,7 @@ service akmd /system/bin/akmd
     class main
     user compass
     group compass misc input
+    seclabel u:r:akmd:s0
 
 # sdcard daemon
 service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0

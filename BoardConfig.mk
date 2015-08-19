@@ -117,7 +117,13 @@ BOARD_GPS_LIBRARIES := libgps
 BOARD_USE_LEGACY_TRACKPAD := true
 
 # SELinux
-include device/qcom/sepolicy/sepolicy.mk
+-include device/qcom/sepolicy/sepolicy.mk
+
+BOARD_SEPOLICY_DIRS += \
+    device/htc/leo/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+    akmd.te
 
 # ART
 ifeq ($(HOST_OS),linux)
