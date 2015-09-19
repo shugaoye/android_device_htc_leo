@@ -146,6 +146,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.config.low_ram=true \
 	persist.sys.force_highendgfx=true \
 	audio.offload.disable=1 \
+	ro.sys.fw.dex2oat_thread_count=1 \
 	power.saving.mode=1
 
 # Default heap settings for 512mb device
