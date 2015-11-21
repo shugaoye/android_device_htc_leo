@@ -1,7 +1,0 @@
-#!/system/bin/sh
-
-/bin/rm /etc/ppp/ppp0.pid
-
-# Delete the symbolic link created by ip-up
-/bin/rm /etc/resolv.conf
-

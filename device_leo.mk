@@ -158,6 +158,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	debug.camcorder.disablemeta=1 \
 	rw.media.record.hasb=0
 
+#Art
 PRODUCT_PROPERTY_OVERRIDES += \
 	dalvik.vm.dex2oat-filter=balanced \
 	dalvik.vm.dex2oat-flags=--no-watch-dog \
@@ -188,12 +189,6 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.distict.xml \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
 	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
-
-#PRODUCT_COPY_FILES += \
-#	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
-#	frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-#	frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-#	frameworks/av/media/libstagefright/data/media_codecs_ffmpeg.xml:system/etc/media_codecs_ffmpeg.xml
 
 # Proprietary
 $(call inherit-product, device/htc/leo/proprietary.mk)

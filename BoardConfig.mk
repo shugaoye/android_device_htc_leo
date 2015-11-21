@@ -76,10 +76,6 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 TARGET_BOOTANIMATION_USE_RGB565 := true
 TARGET_BOOTANIMATION_HALF_RES := true
 
-# Webkit
-TARGET_FORCE_CPU_UPLOAD := true
-ENABLE_WEBGL := true
-
 # Camera/Media
 TARGET_USES_SUBMIT_ONE_INPUT_BUFFER := true
 TARGET_NEEDS_PRELINK_SUPPORT := true
@@ -162,5 +158,5 @@ BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun0/file"
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
 
 # Recovery
-TARGET_RECOVERY_FSTAB = device/htc/leo/ramdisk/fstab.htcleo
+TARGET_RECOVERY_FSTAB := device/htc/leo/ramdisk/fstab.htcleo
 RECOVERY_FSTAB_VERSION := 2
