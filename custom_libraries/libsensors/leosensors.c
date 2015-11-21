@@ -35,6 +35,7 @@
 #include <cutils/atomic.h>
 #include <cutils/log.h>
 #include <cutils/native_handle.h>
+#include <cstring>
 
 #define __MAX(a,b) ((a)>=(b)?(a):(b))
 
