@@ -112,15 +112,6 @@ BOARD_GPS_LIBRARIES := libgps
 # Legacy
 BOARD_USE_LEGACY_TRACKPAD := true
 
-# SELinux
--include device/qcom/sepolicy/sepolicy.mk
-
-BOARD_SEPOLICY_DIRS += \
-    device/htc/leo/sepolicy
-
-BOARD_SEPOLICY_UNION += \
-    akmd.te
-
 # ART
 ifeq ($(HOST_OS),linux)
   ifeq ($(TARGET_BUILD_VARIANT),userdebug)
@@ -155,7 +146,7 @@ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_stora
 BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun0/file"
 
 # Healthd HAL
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
+#BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
 
 # Recovery
 TARGET_RECOVERY_FSTAB := device/htc/leo/ramdisk/fstab.htcleo

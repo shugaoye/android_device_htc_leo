@@ -1,3 +1,0 @@
-/dev/lightsensor                                u:object_r:sensors_device:s0
-/system/bin/akmd                                u:object_r:akmd_exec:s0
-

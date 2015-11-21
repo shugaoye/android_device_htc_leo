@@ -8,5 +8,3 @@ recovery                                       /recovery              mtd       
 /dev/block/mmcblk0p3                           /data                  ext4            noatime,noauto_da_alloc,journal_async_commit,errors=panic wait,check
 
 /devices/platform/msm_sdcc.2/mmc_host/mmc1*     auto		      auto 	      defaults 			      voldmanaged=sdcard0:auto,noemulatedsd
-# zRAM
-/dev/block/zram0                              none           swap      defaults                                                                              zramsize=134217728
