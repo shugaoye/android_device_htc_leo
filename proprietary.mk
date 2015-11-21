@@ -37,10 +37,10 @@ PRODUCT_COPY_FILES += \
     device/htc/leo/proprietary/lib/libhtc_acoustic.so:system/lib/libhtc_acoustic.so 
 
 # Camera
-PRODUCT_COPY_FILES += \
-    device/htc/leo/proprietary/lib/libcamera.so:obj/lib/libcamera.so \
-    device/htc/leo/proprietary/lib/liboemcamera.so:system/lib/liboemcamera.so \
-    device/htc/leo/proprietary/lib/libcamera.so:system/lib/libcamera.so
+#PRODUCT_COPY_FILES += \
+#    device/htc/leo/proprietary/lib/libcamera.so:obj/lib/libcamera.so \
+#    device/htc/leo/proprietary/lib/liboemcamera.so:system/lib/liboemcamera.so \
+#    device/htc/leo/proprietary/lib/libcamera.so:system/lib/libcamera.so
 
 # Compass
 PRODUCT_COPY_FILES += \
