@@ -141,6 +141,8 @@ TARGET_PROVIDES_INIT_RC := true
 BOARD_USES_LEGACY_RIL := true
 LEGACY_RIL := true
 
+BLOCK_BASED_OTA := false
+
 # USB
 BOARD_USE_USB_MASS_STORAGE_SWITCH := true
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun0/file"
