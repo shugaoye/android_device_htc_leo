@@ -80,7 +80,8 @@ PRODUCT_PACKAGES += \
 	copybit.qsd8k \
 	gralloc.qsd8k \
 	hwcomposer.qsd8k \
-	memtrack.qsd8k
+	memtrack.qsd8k \
+	libstlport
 
 # Omx
 # PRODUCT_PACKAGES += \
