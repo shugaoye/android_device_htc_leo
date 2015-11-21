@@ -50,6 +50,7 @@ TARGET_KERNEL_CONFIG := htcleo_defconfig
 BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive
 BOARD_KERNEL_BASE := 0x11800000
 BOARD_KERNEL_NEW_PPPOX := true
+#KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
