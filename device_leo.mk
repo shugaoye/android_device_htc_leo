@@ -25,7 +25,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
 	device/htc/leo/ramdisk/logo.rle:root/logo.rle \
 	device/htc/leo/ramdisk/fstab.htcleo:root/fstab.htcleo \
-	device/htc/leo/ramdisk/init.rc:root/init.rc \
 	device/htc/leo/ramdisk/init.htcleo.rc:root/init.htcleo.rc \
 	device/htc/leo/ramdisk/init.htcleo.usb.rc:root/init.htcleo.usb.rc \
 	device/htc/leo/ramdisk/ueventd.htcleo.rc:root/ueventd.htcleo.rc
@@ -46,9 +45,6 @@ PRODUCT_COPY_FILES += \
 	device/htc/leo/keylayout/h2w_headset.kl:system/usr/keylayout/h2w_headset.kl \
 	device/htc/leo/keylayout/htcleo-touchscreen.idc:system/usr/idc/htcleo-touchscreen.idc
 
-# Permissions
-PRODUCT_COPY_FILES += \
-	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml 
 
 # Leo uses high-density artwork where available
 PRODUCT_LOCALES += hdpi mdpi
@@ -68,8 +64,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	audio.usb.default \
 	audio.a2dp.default \
-	audio.primary.qsd8k \
-	audio_policy.qsd8k
+	audio.primary.qsd8k
 
 # Camera
 PRODUCT_PACKAGES += \
@@ -107,8 +102,7 @@ PRODUCT_PACKAGES += \
 
 # Misc
 PRODUCT_PACKAGES += \
-	power.qsd8k \
-	com.android.future.usb.accessory
+	power.qsd8k
 
 # Additional Propreties
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -181,6 +175,7 @@ ADDITIONAL_DEFAULT_PROPERTIES += \
 # Permissions
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
+	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
 	frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
 	frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
 	frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
