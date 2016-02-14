@@ -63,8 +63,7 @@ PRODUCT_COPY_FILES += \
 
 # RIL
 PRODUCT_COPY_FILES += \
-    device/htc/leo/proprietary/lib/libhtc_ril.so:system/lib/libhtc_ril.so \
-    device/htc/leo/proprietary/lib/libril.so:system/lib/libril.so
+    device/htc/leo/proprietary/lib/libhtc_ril.so:system/lib/libhtc_ril.so
 
 # Omx
 # PRODUCT_COPY_FILES += \
