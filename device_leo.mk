@@ -72,8 +72,10 @@ PRODUCT_PACKAGES += \
 	audio_policy.qsd8k
 
 # Camera
-#PRODUCT_PACKAGES += \
-#	camera.qsd8k
+PRODUCT_PACKAGES += \
+	camera.qsd8k \
+	libshim_camera \
+	libshim_skia
 
 # Display
 PRODUCT_PACKAGES += \
