@@ -1,11 +1,8 @@
 import init.htcleo.usb.rc
 
 on init
-    export EXTERNAL_STORAGE /storage/sdcard0
-    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
-    mkdir /storage/sdcard0 0700 root root
-    symlink /storage/sdcard0 /sdcard
-    symlink /storage/sdcard0 /mnt/sdcard
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard
 
     write /sys/block/zram0/comp_algorithm lz4
     write /sys/block/zram0/max_comp_streams 2
@@ -178,11 +175,6 @@ service akmd /system/bin/akmd
     user compass
     group compass misc input
     seclabel u:r:akmd:s0
-
-# sdcard daemon
-service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
-    class late_start
-    disabled
 
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
