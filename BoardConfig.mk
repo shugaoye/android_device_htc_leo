@@ -54,8 +54,8 @@ BOARD_KERNEL_NEW_PPPOX := true
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUEDROID_VENDOR_CONF := device/htc/leo/bluetooth/vnd_qsd8k.txt
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/htc/leo/bluetooth/include
+BOARD_BLUEDROID_VENDOR_CONF := device/htc/leo/bluetooth/libbt_vndcfg.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/htc/leo/bluetooth
 
 # Display
 BOARD_EGL_CFG := device/htc/leo/configs/egl.cfg
