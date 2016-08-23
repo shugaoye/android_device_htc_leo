@@ -138,11 +138,6 @@ LEGACY_RIL := true
 
 BLOCK_BASED_OTA := false
 
-# USB
-BOARD_USE_USB_MASS_STORAGE_SWITCH := true
-TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun0/file"
-BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun0/file"
-
 # Healthd HAL
 #BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
 
