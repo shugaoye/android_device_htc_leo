@@ -142,7 +142,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.config.low_ram=true \
 	persist.sys.force_highendgfx=true \
 	audio.offload.disable=1 \
-	ro.sys.fw.dex2oat_thread_count=2 \
+	ro.sys.fw.dex2oat_thread_count=1 \
 	sys.io.scheduler=bfq \
 	power.saving.mode=1
 
