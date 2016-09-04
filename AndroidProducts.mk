@@ -18,4 +18,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/device_leo.mk
+    $(LOCAL_DIR)/device_htcleo.mk

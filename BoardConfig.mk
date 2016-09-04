@@ -26,7 +26,7 @@
 # general 
 USE_CAMERA_STUB := false
 
-TARGET_SPECIFIC_HEADER_PATH := device/htc/leo/include
+TARGET_SPECIFIC_HEADER_PATH := device/htc/htcleo/include
 
 # Board/CPU
 TARGET_NO_BOOTLOADER := true
@@ -45,7 +45,7 @@ TARGET_DISABLE_ARM_PIE := true
 TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
 
 # Kernel
-TARGET_KERNEL_SOURCE := kernel/htc/leo
+TARGET_KERNEL_SOURCE := kernel/htc/htcleo
 TARGET_KERNEL_CONFIG := htcleo_defconfig
 BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive
 BOARD_KERNEL_BASE := 0x11800000
@@ -54,11 +54,11 @@ BOARD_KERNEL_NEW_PPPOX := true
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUEDROID_VENDOR_CONF := device/htc/leo/bluetooth/libbt_vndcfg.txt
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/htc/leo/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/htc/htcleo/bluetooth/libbt_vndcfg.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/htc/htcleo/bluetooth
 
 # Display
-BOARD_EGL_CFG := device/htc/leo/configs/egl.cfg
+BOARD_EGL_CFG := device/htc/htcleo/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
 TARGET_DISABLE_TRIPLE_BUFFERING := true
@@ -69,7 +69,7 @@ COMMON_GLOBAL_CFLAGS += -DTARGET_8x50
 TARGET_FORCE_SCREENSHOT_CPU_PATH := true
 TARGET_USES_ION := true
 
-#Bottanimation
+#Bootanimation
 TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 TARGET_BOOTANIMATION_USE_RGB565 := true
@@ -143,5 +143,5 @@ BLOCK_BASED_OTA := false
 #BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
 
 # Recovery
-TARGET_RECOVERY_FSTAB := device/htc/leo/ramdisk/fstab.htcleo
+TARGET_RECOVERY_FSTAB := device/htc/htcleo/ramdisk/fstab.htcleo
 RECOVERY_FSTAB_VERSION := 2
