@@ -1,0 +1,53 @@
+From 17fba05bf0ee96a34f8b27a89a9957e7d93f110b Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Sun, 10 Nov 2013 16:38:06 +0700
+Subject: [PATCH 3/3] telephony: DataConnection: support old RILs
+
+Older RILs require different technology value
+
+Change-Id: Ia72bb1229132a00b5c343c0467823b895f0338d0
+
+Conflicts:
+	src/java/com/android/internal/telephony/dataconnection/DataConnection.java
+---
+ .../telephony/dataconnection/DataConnection.java        | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/src/java/com/android/internal/telephony/dataconnection/DataConnection.java b/src/java/com/android/internal/telephony/dataconnection/DataConnection.java
+index edc58af..ec497b3 100644
+--- a/src/java/com/android/internal/telephony/dataconnection/DataConnection.java
++++ b/src/java/com/android/internal/telephony/dataconnection/DataConnection.java
+@@ -576,7 +576,7 @@ public class DataConnection extends StateMachine {
+         }
+ 
+         mPhone.mCi.setupDataCall(
+-                Integer.toString(cp.mRilRat + 2),
++                Integer.toString(getRilRadioTechnology(cp.mRilRat)),
+                 Integer.toString(cp.mProfileId),
+                 mApnSetting.apn, mApnSetting.user, mApnSetting.password,
+                 Integer.toString(authType),
+@@ -727,6 +727,21 @@ public class DataConnection extends StateMachine {
+         if (DBG) log("NotifyDisconnectCompleted DisconnectParams=" + dp);
+     }
+ 
++    private int getRilRadioTechnology(int rilRadioTechnology) {
++        if (mPhone.mCi.getRilVersion() < 6) {
++            int phoneType = mPhone.getPhoneType();
++            if (phoneType == PhoneConstants.PHONE_TYPE_GSM) {
++                return RILConstants.SETUP_DATA_TECH_GSM;
++            } else if (phoneType == PhoneConstants.PHONE_TYPE_CDMA) {
++                return RILConstants.SETUP_DATA_TECH_CDMA;
++            } else {
++                throw new RuntimeException("Unknown phoneType " + phoneType + ", should not happen");
++            }
++        } else {
++            return rilRadioTechnology + 2;
++        }
++    }
++
+     /*
+      * **************************************************************************
+      * Begin Members and methods owned by DataConnectionTracker but stored
+-- 
+1.9.1
+

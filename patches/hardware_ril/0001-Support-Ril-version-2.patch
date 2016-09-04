@@ -1,0 +1,26 @@
+From bdeba0ecce4f0e3022d2be6990bb02ecc00f7d19 Mon Sep 17 00:00:00 2001
+From: maniacx <macs18max@gmail.com>
+Date: Sat, 3 Sep 2016 09:00:02 +0800
+Subject: [PATCH] Support Ril version 2
+
+Change-Id: Ib766f0f129cd7deeb6b0ff9fb34c2329e7942494
+---
+ include/telephony/ril.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/telephony/ril.h b/include/telephony/ril.h
+index 2e71367..deb1099 100644
+--- a/include/telephony/ril.h
++++ b/include/telephony/ril.h
+@@ -47,7 +47,7 @@ extern "C" {
+ #endif
+ 
+ #define RIL_VERSION 11     /* Current version */
+-#define RIL_VERSION_MIN 6 /* Minimum RIL_VERSION supported */
++#define RIL_VERSION_MIN 2 /* Minimum RIL_VERSION supported */
+ 
+ #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
+ #define CDMA_NUMBER_INFO_BUFFER_LENGTH 81
+-- 
+1.9.1
+
