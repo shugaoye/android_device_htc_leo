@@ -104,6 +104,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	power.qsd8k
 
+PRODUCT_PACKAGES += \
+	Gello
+
 # Additional Propreties
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.sf.lcd_density=240 \
