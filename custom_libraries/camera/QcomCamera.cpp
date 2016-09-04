@@ -437,9 +437,6 @@ extern "C" int camera_device_open(const hw_module_t* module, const char* id,
             if (::dlsym(libcameraHandle, "openCameraHardware") != NULL) {
                 *(void**)&LINK_openCameraHardware =
                     ::dlsym(libcameraHandle, "openCameraHardware");
-            } else if (::dlsym(libcameraHandle, "HAL_openCameraHardware") != NULL) {
-                *(void**)&LINK_openCameraHardware =
-                    ::dlsym(libcameraHandle, "HAL_openCameraHardware");
             } else {
                 ALOGE("FATAL ERROR: Could not find openCameraHardware");
                 dlclose(libcameraHandle);

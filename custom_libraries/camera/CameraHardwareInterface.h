@@ -233,8 +233,6 @@ public:
  */
 extern "C" int HAL_getNumberOfCameras();
 extern "C" void HAL_getCameraInfo(int cameraId, struct CameraInfo* cameraInfo);
-/* HAL should return NULL if it fails to open camera hardware. */
-extern "C" sp<CameraHardwareInterface> HAL_openCameraHardware(int cameraId);
 
 };  // namespace android
 
