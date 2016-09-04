@@ -122,7 +122,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.ril.oem.nosim.ecclist=911,112,999,000,08,118,120,122,110,119,995 \
 	ro.ril.emc.mode=2 \
 	ro.telephony.ril.config=signalstrengthgsm,apptypesim,datacallapn \
-	ro.vold.umsdirtyratio=20 \
 	persist.sys.usb.config=charging,adb \
 	persist.sys.root_access=1 \
 	persist.sys.purgeable_assets=1 \

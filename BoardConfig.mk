@@ -42,7 +42,6 @@ TARGET_CPU_VARIANT := scorpion
 ARCH_ARM_HAVE_TLS_REGISTER := true
 TARGET_NEEDS_NON_PIE_SUPPORT := true
 TARGET_DISABLE_ARM_PIE := true
-TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
 
 # Kernel
 TARGET_KERNEL_SOURCE := kernel/htc/htcleo
@@ -97,11 +96,6 @@ WIFI_DRIVER_FW_PATH_AP := "/system/etc/firmware/fw_bcmdhd_apsta.bin"
 WIFI_DRIVER_FW_PATH_PARAM := "/sys/module/bcmdhd/parameters/firmware_path"
 WIFI_DRIVER_MODULE_NAME := bcmdhd
 
-# Audio
-AUDIO_FEATURE_ENABLED_INCALL_MUSIC := false
-AUDIO_FEATURE_ENABLED_COMPRESS_VOIP := false
-AUDIO_FEATURE_ENABLED_PROXY_DEVICE := false
-
 # Compass/Accelerometer
 BOARD_VENDOR_USE_AKMD := akm8973
 
@@ -109,8 +103,6 @@ BOARD_VENDOR_USE_AKMD := akm8973
 BOARD_USES_GPSSHIM := true
 BOARD_GPS_LIBRARIES := libgps
 
-# Legacy
-BOARD_USE_LEGACY_TRACKPAD := true
 
 # ART
 ifeq ($(HOST_OS),linux)

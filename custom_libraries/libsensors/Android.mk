@@ -15,14 +15,11 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(BOARD_VENDOR),htc)
-ifeq ($(TARGET_BOARD_PLATFORM),qsd8k)
-
 # HAL module implemenation, not prelinked, and stored in
 # hw/<SENSORS_HARDWARE_MODULE_ID>.<ro.product.board>.so
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := sensors.$(TARGET_BOOTLOADER_BOARD_NAME)
+LOCAL_MODULE := sensors.htcleo
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
 
@@ -41,6 +38,3 @@ LOCAL_SRC_FILES := 						\
 LOCAL_SHARED_LIBRARIES := liblog libcutils
 
 include $(BUILD_SHARED_LIBRARY)
-
-endif
-endif
