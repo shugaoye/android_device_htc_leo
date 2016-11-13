@@ -88,7 +88,6 @@ PRODUCT_PACKAGES += \
 # Wifi
 PRODUCT_PACKAGES += \
 	libnetcmdiface \
-	dhcpcd.conf \
 	hostapd \
 	libwpa_client \
 	wpa_supplicant.conf \
