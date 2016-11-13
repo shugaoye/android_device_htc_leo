@@ -152,7 +152,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	audio.offload.disable=1 \
 	ro.sys.fw.dex2oat_thread_count=1 \
 	power.saving.mode=1 \
-	ro.vold.primary_physical=1
+	ro.vold.primary_physical=1 \
+	persist.graphics.vulkan.disable=true
 
 # Default heap settings for 512mb device
 include frameworks/native/build/phone-hdpi-512-dalvik-heap.mk
