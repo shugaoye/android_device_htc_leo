@@ -1,0 +1,140 @@
+From a5c1cae9255e4cb1281e9521faaa642f3bb9b247 Mon Sep 17 00:00:00 2001
+From: maniacx <macs18max@gmail.com>
+Date: Sat, 12 Nov 2016 12:45:26 +0400
+Subject: [PATCH 5/6] Support for legacy Ril 2
+
+Change-Id: I4e6aaa0faed6fd17059761c0717e1a2cf6d01cf8
+---
+ src/java/com/android/internal/telephony/RIL.java   | 35 ++++++++++++++++------
+ .../telephony/dataconnection/DataConnection.java   | 17 ++++++++++-
+ 2 files changed, 42 insertions(+), 10 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index 8e0d841..cb04ee6 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -1668,7 +1668,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+ 
+         rr.mParcel.writeInt(7);
+ 
+-        rr.mParcel.writeString(Integer.toString(radioTechnology + 2));
++        rr.mParcel.writeString(Integer.toString(radioTechnology));
+         rr.mParcel.writeString(Integer.toString(profile));
+         rr.mParcel.writeString(apn);
+         rr.mParcel.writeString(user);
+@@ -1681,7 +1681,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+                 + profile + " " + apn + " " + user + " "
+                 + password + " " + authType + " " + protocol);
+ 
+-        mEventLog.writeRilSetupDataCall(rr.mSerial, radioTechnology, profile, apn,
++	final int rilRat = radioTechnology - 2;
++
++        mEventLog.writeRilSetupDataCall(rr.mSerial, rilRat, profile, apn,
+                 user, password, authType, protocol);
+ 
+         send(rr);
+@@ -3766,9 +3768,13 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+             numApplications = IccCardStatus.CARD_MAX_APPS;
+         }
+         cardStatus.mApplications = new IccCardApplicationStatus[numApplications];
++        boolean oldRil = needsOldRilFeature("apptypesim");
++
+         for (int i = 0 ; i < numApplications ; i++) {
+             appStatus = new IccCardApplicationStatus();
+             appStatus.app_type       = appStatus.AppTypeFromRILInt(p.readInt());
++            // Seems the simplest way so we dont mess up the parcel
++            if (oldRil) appStatus.app_type = appStatus.AppTypeFromRILInt(1);
+             appStatus.app_state      = appStatus.AppStateFromRILInt(p.readInt());
+             appStatus.perso_substate = appStatus.PersoSubstateFromRILInt(p.readInt());
+             appStatus.aid            = p.readString();
+@@ -3877,7 +3883,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+             dataCall.cid = p.readInt();
+             dataCall.active = p.readInt();
+             dataCall.type = p.readString();
+-            if (version < 4) p.readString(); // APN not used
++            if (version < 4 || needsOldRilFeature("datacallapn")) {
++                p.readString(); // APN - not used
++            }
+             String addresses = p.readString();
+             if (!TextUtils.isEmpty(addresses)) {
+                 dataCall.addresses = addresses.split(" ");
+@@ -3925,8 +3933,8 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+     private Object
+     responseDataCallList(Parcel p) {
+         ArrayList<DataCallResponse> response;
+-
+-        int ver = p.readInt();
++        boolean oldRil = needsOldRilFeature("datacall");
++        int ver = (oldRil ? 3 : p.readInt());
+         int num = p.readInt();
+         riljLog("responseDataCallList ver=" + ver + " num=" + num);
+ 
+@@ -3942,7 +3950,8 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+ 
+     private Object
+     responseSetupDataCall(Parcel p) {
+-        int ver = p.readInt();
++        boolean oldRil = needsOldRilFeature("datacall");
++        int ver = (oldRil ? 3 : p.readInt());
+         int num = p.readInt();
+         if (RILJ_LOGV) riljLog("responseSetupDataCall ver=" + ver + " num=" + num);
+ 
+@@ -4122,9 +4131,17 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+ 
+     private Object
+     responseSignalStrength(Parcel p) {
+-        // Assume this is gsm, but doesn't matter as ServiceStateTracker
+-        // sets the proper value.
+-        SignalStrength signalStrength = SignalStrength.makeSignalStrengthFromRilParcel(p);
++        SignalStrength signalStrength;
++        if (needsOldRilFeature("signalstrengthgsm")) {
++            int gsmSignal  = p.readInt();
++            int gsmErrRate = p.readInt();
++            signalStrength = new SignalStrength(gsmSignal, gsmErrRate,
++                                                -1, -1, -1, -1, -1, true);
++        } else {
++            // Assume this is gsm, but doesn't matter as ServiceStateTracker
++            // sets the proper value.
++            signalStrength = SignalStrength.makeSignalStrengthFromRilParcel(p);
++        }
+         return signalStrength;
+     }
+ 
+diff --git a/src/java/com/android/internal/telephony/dataconnection/DataConnection.java b/src/java/com/android/internal/telephony/dataconnection/DataConnection.java
+index 834548b..49b17a2 100644
+--- a/src/java/com/android/internal/telephony/dataconnection/DataConnection.java
++++ b/src/java/com/android/internal/telephony/dataconnection/DataConnection.java
+@@ -487,7 +487,7 @@ public class DataConnection extends StateMachine {
+         }
+ 
+         mPhone.mCi.setupDataCall(
+-                cp.mRilRat,
++                getRilRadioTechnology(cp.mRilRat),
+                 cp.mProfileId,
+                 mApnSetting.apn, mApnSetting.user, mApnSetting.password,
+                 authType,
+@@ -637,6 +637,21 @@ public class DataConnection extends StateMachine {
+         if (DBG) log("NotifyDisconnectCompleted DisconnectParams=" + dp);
+     }
+ 
++    private int getRilRadioTechnology(int rilRadioTechnology) {
++        if (mPhone.mCi.getRilVersion() < 6) {
++            int phoneType = mPhone.getPhoneType();
++            if (phoneType == PhoneConstants.PHONE_TYPE_GSM) {
++                return RILConstants.SETUP_DATA_TECH_GSM;
++            } else if (phoneType == PhoneConstants.PHONE_TYPE_CDMA) {
++                return RILConstants.SETUP_DATA_TECH_CDMA;
++            } else {
++                throw new RuntimeException("Unknown phoneType " + phoneType + ", should not happen");
++            }
++        } else {
++            return rilRadioTechnology +2;
++        }
++    }
++
+     /*
+      * **************************************************************************
+      * Begin Members and methods owned by DataConnectionTracker but stored
+-- 
+2.7.4
+

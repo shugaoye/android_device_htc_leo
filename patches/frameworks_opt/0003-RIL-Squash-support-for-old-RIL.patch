@@ -1,0 +1,586 @@
+From fcddff8c45e4215f8817af2b79c7482a935fc1ff Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Fri, 23 Nov 2012 16:04:56 +0700
+Subject: [PATCH 3/6] RIL: Squash support for old RIL
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Also clean up unused old RIL features.
+
+	commit 6536e023ed1523b6184da5d5704570fb3e24f01a
+	Author: Emilio López <turl@tuxfamily.org>
+	Date:   Fri Oct 12 16:45:29 2012 +0000
+
+	    telephony: let us write just the aid on getIMSIForApp
+
+	    This implements a new RIL compatibility feature, "writeaidonly", that
+	    lets us write just the aid, without the preceding 1. This is needed to
+	    be able to read the IMSI correctly on some Motorola RILs
+
+	    Change-Id: I48e9d76db6730571c01d59313fc7a5e79845f922
+
+	commit e470d722cc6fc5705d6e407a90f34692f019129f
+	Author: Hashcode <hashcode0f@gmail.com>
+	Date:   Mon Sep 24 11:29:48 2012 -0700
+
+	    ril: avoid sending null aid string in getIMSI
+
+	    A change to how getIMSI works in JB causes null aid strings
+	    to be sent.  The result for RILs older than v7 is a corrupt
+	    ril response in SIMRecords::fetchSimRecords.  This corruption
+	    ends up setting mImsi to null (in SIMRecords) and that causes
+	    havoc w/ 3g/4g data connections.
+
+	    This patch avoids sending null aid strings and has fixed
+	    data connection issues on several Motorola devices.
+
+	    This new patch is implemented as an opt-in old ril feature
+
+	    Change-Id: I6682ea10c8b216e2adc5abffbcc50f3cb6c9d7b8
+
+	commit 16cd02ad6f9679ed5895d53e9d07fef3ee9d3240
+	Author: Robert Burns <burnsra@gmail.com>
+	Date:   Tue Sep 25 09:33:24 2012 -0400
+
+	    Revert "ril: avoid sending null aid string in getIMSI"
+
+	    This reverts commit 4b785569b338d150dccdb5bb6d3a290b068e603c.
+
+	    This change has been verified as breaking network for toro/toroplus.
+
+	    Change-Id: I74e43acd10d4b38e149acf55e08537430f871139
+
+	commit 814e909c879621101640128fe0a0c9f0ad2ef504
+	Author: codeworkx <codeworkx@cyanogenmod.com>
+	Date:   Tue Sep 25 13:06:15 2012 +0200
+
+	    ril: dedup mRilVer
+
+	    Change-Id: I665b5c1c502d3cc49d2b3343a2e9eafc8b8e5a77
+
+	commit 69292881c8c120c90852d306a5c312a07dd19c10
+	Author: codeworkx <codeworkx@cyanogenmod.com>
+	Date:   Tue Sep 25 02:51:18 2012 +0200
+
+	    fix build: add missing instance variable mRilVer
+
+	    Fixes commit 4b785569b338d150dccdb5bb6d3a290b068e603c
+
+	    Change-Id: Id239285aff6997eaa42521b695b6812029f580c1
+
+	commit 4b785569b338d150dccdb5bb6d3a290b068e603c
+	Author: Hashcode <hashcode0f@gmail.com>
+	Date:   Mon Sep 24 11:29:48 2012 -0700
+
+	    ril: avoid sending null aid string in getIMSI
+
+	    A change to how getIMSI works in JB causes null aid strings
+	    to be sent.  The result for RILs older than v7 is a corrupt
+	    ril response in SIMRecords::fetchSimRecords.  This corruption
+	    ends up setting mImsi to null (in SIMRecords) and that causes
+	    havoc w/ 3g/4g data connections.
+
+	    This patch avoids sending null aid strings and has fixed
+	    data connection issues on several Motorola devices.
+
+	    Change-Id: Ic1fc363e35d79793c48d19080a2e028e428b888f
+
+	commit 154221766ac6bcb1c0af549377e65a8c8ec5d0a0
+	Author: Ethan Chen <intervigil@gmail.com>
+	Date:   Mon Sep 3 01:21:04 2012 -0700
+
+	    RIL: make data call APN a selectable RIL feature
+
+	    Disabling this for all RIL versions above 3 can cause issues with some
+	    device RILs and establishing a data connection.
+
+	    Change-Id: I7be41b120663b0839beec95c22d0615f5e79c582
+
+	commit b40a14246e50429d91e603a64d6baac7813699d1
+	Author: Janne Grunau <j@jannau.net>
+	Date:   Tue Aug 14 22:32:08 2012 +0200
+
+	    RIL: fix protocol mismatch for DataConnectionState_v4
+
+	    The apn got dropped in DataConnectionState v4.
+
+	    Avoids UnknownHostExceptions in DataCallState.setLinkProperties().
+
+	    Change-Id: Icd0a1ba1c77cead13b15b3749965edead5f59135
+
+	commit 431c19a5ef39003383de3fc44c636f8d03e74a17
+	Author: isimobile <isimobile@ismaakit.com>
+	Date:   Wed Jan 11 21:34:47 2012 +0200
+
+	    telephony: Added support for use of Honeycomb Radio (Modem).
+
+	    -squashed (RIL: reference ICS and GB):
+	    https://github.com/isimobile/android_frameworks_base/commit/7507127287aa8cf84b5e811977d95400b029f95b
+	    https://github.com/isimobile/android_frameworks_base/commit/af2b84d1860b38952784ae116172e00a4b445a1d
+	    https://github.com/isimobile/android_frameworks_base/commit/872156a81fb4185217e7642d10ec33da4893a2b3
+	    https://github.com/isimobile/android_frameworks_base/commit/400bbc4e3ce8e9e0219b31bb985e6628c50d0f07
+	    https://github.com/isimobile/android_frameworks_base/commit/7cb289d9e59ac69350dd2377eff63940641df603
+
+	    -cleaned up some whitespace
+
+	    Change-Id: I3a3474245bb336bc3f275605648f5f94f3f9b6e7
+
+	commit 87ee134d8a0a09ff5c824450969207fa66531f2f
+	Author: Emilio López <turl@tuxfamily.org>
+	Date:   Thu Dec 1 21:35:21 2011 +0000
+
+	    RIL: skip broken RIL_UNSOL_DATA_CALL_LIST_CHANGED
+
+	    Some old RILs might produce events with type 'IP' containing the remote IP
+	    address, normally 10.64.64.64. These events mismatch with the previously
+	    generated ones and cause the system to take the connection down, even if
+	    it was up and working correctly.
+
+	    Add skipbrokendatacall to ro.telephony.ril.v3 to enable the workaround.
+
+	    Change-Id: I3bc3c84735201a797011aafba2718638a826f31d
+
+	commit b2cfc6f82f75fe47e5ca66ac7ee5bab1740f4a45
+	Author: Tom Giordano <tomgiordano83@gmail.com>
+	Date:   Mon Nov 28 02:51:53 2011 +1100
+
+	    v3 RIL: another getDataCallState fix
+
+	    Change-Id: Ie4e69e231956f46bc1b82550fdf4863c1367efaf
+
+	commit 16330ce5c921792115bc796a3229057491524915
+	Author: Pawit Pornkitprasan <p.pawit@gmail.com>
+	Date:   Sun Nov 27 09:17:19 2011 +0700
+
+	    v3 RIL: Fix getDataCallState and PIN setting
+
+	    Change-Id: Icf5cee33aeec58cffb23430f0f7b06b9971a71ad
+
+	commit 3f730cc1055739dc4cbf53b44acf9c254c43a52b
+	Author: Koushik Dutta <koushd@gmail.com>
+	Date:   Fri Nov 25 17:23:58 2011 -0800
+
+	    Break the legacy ril shims into specific features. The ICC feature breaks crespo,
+            but crepso needs the signal strength feature.
+
+	commit 6b09342ad9131754eeaa733364c2f4474a10bde7
+	Author: Emilio López <turl@tuxfamily.org>
+	Date:   Sun Nov 20 22:12:28 2011 +0000
+
+	    RIL: handle the lack of version gracefully on older RILs
+
+	    Change-Id: I8227c55968f502112c5b6ac334eee505c29924c2
+
+	commit 913255a820cfcb99a6d89ca036eba53c110adea2
+	Author: Kolja Dummann <k.dummann@gmail.com>
+	Date:   Mon Nov 21 22:27:45 2011 +0100
+
+	    RIL: fix pin unlock for old ril
+
+	    Change-Id: I27eb348233d41618875473ca9bdb93d339c359f9
+
+	commit 27b873d14816282bab22db8a5920ca01466d36d0
+	Author: Ricardo Cerqueira <github@cerqueira.org>
+	Date:   Thu Nov 17 11:16:23 2011 +0000
+
+	    RIL: Support signal strength format from v3 vendor RILs
+
+	    Enable by setting property ro.telephony.ril.v3=1
+
+	    Change-Id: I2eb23ab5d17d15ed71e5777dcd368d47c87e29ef
+
+	commit 8d0f918912cd2ede742eb40f3f6296819b4e2e71
+	Author: Ricardo Cerqueira <github@cerqueira.org>
+	Date: 2012-11-22 19:11:19 +0100
+
+	    telephony: Reintroduce the old ICS RadioStates
+
+	    All the previous SIM/RUIM states are now equivalent to "RADIO_ON".
+	    Tested with a fully ICS-compliant set of radio libraries, and appears
+	    to work fully.
+
+	    Change-Id: Id34320c59a316e2b6747bd3a48077b863ab772d6
+
+	commit 7a2fa6272bdfcf8b4bc665848a56689271e1b573
+	Author: Adnan Begovic <adnan@cyngn.com>
+	Date:   Mon Feb 8 14:36:37 2016 -0800
+
+	    telephony: Add oldril feature setPrefNwTypeOnUnsolConnected.
+
+	      Commit 3feff8730f1de770131c984c5708a7da539943b6 removed
+	      the set nw mode on unsolicited connect which is causing
+	      data connection failures on certain devices.
+
+	    Change-Id: I641841ba170a98f595e25516d01c0ff86ba17ff0
+
+	commit b9e5208e64a016e86be83d9d5328f6412cb16c65
+	Author: Danny Baumann <dannybaumann@web.de>
+	Date:   Thu Nov 5 11:06:09 2015 +0100
+
+	    Activate default UICC application if not done automatically
+
+	    Provide compatibility to the pre-M behaviour.
+
+	    Change-Id: Ie87e40cf1da3b19fd37e2c07ff50845f0842216a
+
+	commit 40800fdd00d2d7a311cb19390065bdc39bcc423e
+	Author: Danny Baumann <dannybaumann@web.de>
+	Date:   Mon Dec 7 16:37:45 2015 +0100
+
+	    Also activate default UICC apps once after SIM presence
+
+	    Some devices apparently need this, and it shouldn't hurt on other
+	    devices either.
+
+	    Change-Id: I7feb27cceeffc30081e682a6f6b0e2bdb6ad5087
+
+	commit e243626e34bcf7383cfcdc4e80d1a9d6176b0ede
+	Author: Ricardo Cerqueira <github@cerqueira.org>
+	Date: 2013-04-01 17:38:02 +0100
+
+	    RIL: Add compatibility with qcom's DSDS
+
+	    Devices with radio libraries built against a DSDS-enabled qualcomm
+	    BSP (anything in the last 4 or 5 months, apparently) have a slight
+	    incompatibility in the RIL protocol: it expects the first 4 bytes
+	    of the datastream to be the slot's identification (even if the
+	    device isn't dual-SIM). Absence of those 4 bytes will make the
+	    connection hang.
+
+Change-Id: I9f5821add02e7e5b5286c3b0818cb4a94edcc13c
+---
+ .../android/internal/telephony/BaseCommands.java   |  3 +-
+ .../internal/telephony/CommandsInterface.java      | 11 +---
+ src/java/com/android/internal/telephony/RIL.java   | 72 +++++++++++++++++++---
+ .../telephony/dataconnection/DataCallResponse.java |  2 +-
+ .../telephony/test/SimulatedCommandsVerifier.java  |  3 +-
+ .../android/internal/telephony/uicc/UiccCard.java  | 50 +++++++++++++++
+ 6 files changed, 120 insertions(+), 21 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/BaseCommands.java b/src/java/com/android/internal/telephony/BaseCommands.java
+index df91ceb..44081d2 100644
+--- a/src/java/com/android/internal/telephony/BaseCommands.java
++++ b/src/java/com/android/internal/telephony/BaseCommands.java
+@@ -848,8 +848,7 @@ public abstract class BaseCommands implements CommandsInterface {
+         return mRilVersion;
+     }
+ 
+-    public void setUiccSubscription(int slotId, int appIndex, int subId, int subStatus,
+-            Message response) {
++    public void setUiccSubscription(int appIndex, boolean activate, Message response) {
+     }
+ 
+     public void setDataAllowed(boolean allowed, Message response) {
+diff --git a/src/java/com/android/internal/telephony/CommandsInterface.java b/src/java/com/android/internal/telephony/CommandsInterface.java
+index f23905a..8706b9b 100644
+--- a/src/java/com/android/internal/telephony/CommandsInterface.java
++++ b/src/java/com/android/internal/telephony/CommandsInterface.java
+@@ -1903,20 +1903,15 @@ public interface CommandsInterface {
+    /**
+      * Sets user selected subscription at Modem.
+      *
+-     * @param slotId
+-     *          Slot.
+      * @param appIndex
+      *          Application index in the card.
+-     * @param subId
+-     *          Indicates subscription 0 or subscription 1.
+-     * @param subStatus
+-     *          Activation status, 1 = activate and 0 = deactivate.
++     * @param activate
++     *          Whether to activate or deactivate the subscription
+      * @param result
+      *          Callback message contains the information of SUCCESS/FAILURE.
+      */
+     // FIXME Update the doc and consider modifying the request to make more generic.
+-    public void setUiccSubscription(int slotId, int appIndex, int subId, int subStatus,
+-            Message result);
++    public void setUiccSubscription(int appIndex, boolean activate, Message result);
+ 
+     /**
+      * Tells the modem if data is allowed or not.
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index ab94cf6..dce298e 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -29,6 +29,7 @@ import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.content.IntentFilter;
++import android.content.res.Resources;
+ import android.hardware.display.DisplayManager;
+ import android.net.ConnectivityManager;
+ import android.net.LocalSocket;
+@@ -306,6 +307,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+     AtomicBoolean mTestingEmergencyCall = new AtomicBoolean(false);
+ 
+     private Integer mInstanceId;
++    private List<String> mOldRilFeatures;
+ 
+     private TelephonyEventLog mEventLog;
+ 
+@@ -761,6 +763,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         mPhoneType = RILConstants.NO_PHONE;
+         mInstanceId = instanceId;
+ 
++        final String oldRilFeatures = SystemProperties.get("ro.telephony.ril.config", "");
++        mOldRilFeatures = Arrays.asList(oldRilFeatures.split(","));
++
+         mEventLog = new TelephonyEventLog(mInstanceId);
+         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RILJ_LOG_TAG);
+@@ -852,19 +857,17 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         send(rr);
+     }
+ 
+-    public void setUiccSubscription(int slotId, int appIndex, int subId,
+-            int subStatus, Message result) {
++    public void setUiccSubscription(int appIndex, boolean activate, Message result) {
+         //Note: This RIL request is also valid for SIM and RUIM (ICC card)
+         RILRequest rr = RILRequest.obtain(RIL_REQUEST_SET_UICC_SUBSCRIPTION, result);
+ 
+         if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest)
+-                + " slot: " + slotId + " appIndex: " + appIndex
+-                + " subId: " + subId + " subStatus: " + subStatus);
++                + " appIndex: " + appIndex + " activate: " + activate);
+ 
+-        rr.mParcel.writeInt(slotId);
++        rr.mParcel.writeInt(mInstanceId);
+         rr.mParcel.writeInt(appIndex);
+-        rr.mParcel.writeInt(subId);
+-        rr.mParcel.writeInt(subStatus);
++        rr.mParcel.writeInt(mInstanceId);
++        rr.mParcel.writeInt(activate ? 1 : 0);
+ 
+         send(rr);
+     }
+@@ -1101,7 +1104,10 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+     getIMSIForApp(String aid, Message result) {
+         RILRequest rr = RILRequest.obtain(RIL_REQUEST_GET_IMSI, result);
+ 
+-        rr.mParcel.writeInt(1);
++        boolean writeAidOnly = needsOldRilFeature("writeaidonly");
++        if (!writeAidOnly) {
++            rr.mParcel.writeInt(1);
++        }
+         rr.mParcel.writeString(aid);
+ 
+         if (RILJ_LOGD) riljLog(rr.serialString() +
+@@ -2446,6 +2452,14 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         switch(stateInt) {
+             case 0: state = RadioState.RADIO_OFF; break;
+             case 1: state = RadioState.RADIO_UNAVAILABLE; break;
++            case 2:
++            case 3:
++            case 4:
++            case 5:
++            case 6:
++            case 7:
++            case 8:
++            case 9:
+             case 10: state = RadioState.RADIO_ON; break;
+ 
+             default:
+@@ -3477,6 +3491,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+ 
+                 // Initial conditions
+                 setRadioPower(false, null);
++                if (needsOldRilFeature("setPrefNwTypeOnUnsolConnected")) {
++                    setPreferredNetworkType(mPreferredNetworkType, null);
++                }
+                 setCdmaSubscriptionSource(mCdmaSubscription, null);
+                 setCellInfoListRate(Integer.MAX_VALUE, null);
+                 notifyRegistrantsRilConnectionChanged(((int[])ret)[0]);
+@@ -3855,10 +3872,15 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+             dataCall.cid = p.readInt();
+             dataCall.active = p.readInt();
+             dataCall.type = p.readString();
++            if (version < 4) p.readString(); // APN not used
+             String addresses = p.readString();
+             if (!TextUtils.isEmpty(addresses)) {
+                 dataCall.addresses = addresses.split(" ");
+             }
++            // DataCallState needs an ifname. Since we don't have one,
++            // use the name from the ThrottleService resource. (default = rmnet0)
++            dataCall.ifname = Resources.getSystem().getString(
++                    com.android.internal.R.string.config_datause_iface);
+         } else {
+             dataCall.status = p.readInt();
+             dataCall.suggestedRetryTime = p.readInt();
+@@ -4963,6 +4985,16 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+      */
+     @Override
+     public void iccOpenLogicalChannel(String AID, Message response) {
++        if (mRilVersion < 10) {
++            if (response != null) {
++                CommandException ex = new CommandException(
++                        CommandException.Error.REQUEST_NOT_SUPPORTED);
++                AsyncResult.forMessage(response, null, ex);
++                response.sendToTarget();
++            }
++            return;
++        }
++
+         RILRequest rr = RILRequest.obtain(RIL_REQUEST_SIM_OPEN_CHANNEL, response);
+         rr.mParcel.writeString(AID);
+ 
+@@ -4993,6 +5025,16 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+     @Override
+     public void iccTransmitApduLogicalChannel(int channel, int cla, int instruction,
+             int p1, int p2, int p3, String data, Message response) {
++        if (mRilVersion < 10) {
++            if (response != null) {
++                CommandException ex = new CommandException(
++                        CommandException.Error.REQUEST_NOT_SUPPORTED);
++                AsyncResult.forMessage(response, null, ex);
++                response.sendToTarget();
++            }
++            return;
++        }
++
+         if (channel <= 0) {
+             throw new RuntimeException(
+                 "Invalid channel in iccTransmitApduLogicalChannel: " + channel);
+@@ -5017,6 +5059,16 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+      */
+     private void iccTransmitApduHelper(int rilCommand, int channel, int cla,
+             int instruction, int p1, int p2, int p3, String data, Message response) {
++        if (mRilVersion < 10) {
++            if (response != null) {
++                CommandException ex = new CommandException(
++                        CommandException.Error.REQUEST_NOT_SUPPORTED);
++                AsyncResult.forMessage(response, null, ex);
++                response.sendToTarget();
++            }
++            return;
++        }
++
+         RILRequest rr = RILRequest.obtain(rilCommand, response);
+         rr.mParcel.writeInt(channel);
+         rr.mParcel.writeInt(cla);
+@@ -5203,4 +5255,8 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         }
+         send(rr);
+     }
++
++    public boolean needsOldRilFeature(String feature) {
++        return mOldRilFeatures.contains(feature);
++    }
+ }
+diff --git a/src/java/com/android/internal/telephony/dataconnection/DataCallResponse.java b/src/java/com/android/internal/telephony/dataconnection/DataCallResponse.java
+index 6934e9d..a268221 100644
+--- a/src/java/com/android/internal/telephony/dataconnection/DataCallResponse.java
++++ b/src/java/com/android/internal/telephony/dataconnection/DataCallResponse.java
+@@ -143,7 +143,7 @@ public class DataCallResponse {
+                         String [] ap = addr.split("/");
+                         if (ap.length == 2) {
+                             addr = ap[0];
+-                            addrPrefixLen = Integer.parseInt(ap[1]);
++                            addrPrefixLen = Integer.parseInt(ap[1].replaceAll("[\\D]",""));
+                         } else {
+                             addrPrefixLen = 0;
+                         }
+diff --git a/src/java/com/android/internal/telephony/test/SimulatedCommandsVerifier.java b/src/java/com/android/internal/telephony/test/SimulatedCommandsVerifier.java
+index fa7d3e8..2dfd552 100644
+--- a/src/java/com/android/internal/telephony/test/SimulatedCommandsVerifier.java
++++ b/src/java/com/android/internal/telephony/test/SimulatedCommandsVerifier.java
+@@ -1289,8 +1289,7 @@ public class SimulatedCommandsVerifier implements CommandsInterface {
+     }
+ 
+     @Override
+-    public void setUiccSubscription(int slotId, int appIndex, int subId, int subStatus,
+-                                    Message result) {
++    public void setUiccSubscription(int appIndex, boolean activate, Message result) {
+ 
+     }
+ 
+diff --git a/src/java/com/android/internal/telephony/uicc/UiccCard.java b/src/java/com/android/internal/telephony/uicc/UiccCard.java
+index 9181507..1c18881 100644
+--- a/src/java/com/android/internal/telephony/uicc/UiccCard.java
++++ b/src/java/com/android/internal/telephony/uicc/UiccCard.java
+@@ -46,6 +46,7 @@ import android.view.WindowManager;
+ 
+ import com.android.internal.telephony.CommandsInterface;
+ import com.android.internal.telephony.CommandsInterface.RadioState;
++import com.android.internal.telephony.RIL;
+ import com.android.internal.telephony.uicc.IccCardApplicationStatus.AppType;
+ import com.android.internal.telephony.uicc.IccCardStatus.CardState;
+ import com.android.internal.telephony.uicc.IccCardStatus.PinState;
+@@ -85,6 +86,7 @@ public class UiccCard {
+     private CatService mCatService;
+     private RadioState mLastRadioState =  RadioState.RADIO_UNAVAILABLE;
+     private UiccCarrierPrivilegeRules mCarrierPrivilegeRules;
++    private boolean mDefaultAppsActivated;
+ 
+     private RegistrantList mAbsentRegistrants = new RegistrantList();
+     private RegistrantList mCarrierPrivilegeRegistrants = new RegistrantList();
+@@ -191,10 +193,30 @@ public class UiccCard {
+                     mHandler.sendMessage(mHandler.obtainMessage(EVENT_CARD_ADDED, null));
+                 }
+             }
++            if (needsSimActivation()) {
++                if (mCardState == CardState.CARDSTATE_PRESENT) {
++                    if (!mDefaultAppsActivated) {
++                        activateDefaultApps();
++                        mDefaultAppsActivated = true;
++                    }
++                } else {
++                    // SIM removed, reset activation flag to make sure
++                    // to re-run the activation at the next insertion
++                    mDefaultAppsActivated = false;
++                }
++            }
++
+             mLastRadioState = radioState;
+         }
+     }
+ 
++    private boolean needsSimActivation() {
++        if (mCi instanceof RIL) {
++            return ((RIL) mCi).needsOldRilFeature("simactivation");
++        }
++        return false;
++    }
++
+     protected void createAndUpdateCatService() {
+         if (mUiccApplications.length > 0 && mUiccApplications[0] != null) {
+             // Initialize or Reinitialize CatService
+@@ -256,6 +278,34 @@ public class UiccCard {
+         return index;
+     }
+ 
++    private void activateDefaultApps() {
++        int gsmIndex = mGsmUmtsSubscriptionAppIndex;
++        int cdmaIndex = mCdmaSubscriptionAppIndex;
++
++        if (gsmIndex < 0 || cdmaIndex < 0) {
++            for (int i = 0; i < mUiccApplications.length; i++) {
++                if (mUiccApplications[i] == null) {
++                    continue;
++                }
++
++                AppType appType = mUiccApplications[i].getType();
++                if (gsmIndex < 0
++                        && (appType == AppType.APPTYPE_USIM || appType == AppType.APPTYPE_SIM)) {
++                    gsmIndex = i;
++                } else if (cdmaIndex < 0 &&
++                        (appType == AppType.APPTYPE_CSIM || appType == AppType.APPTYPE_RUIM)) {
++                    cdmaIndex = i;
++                }
++            }
++        }
++        if (gsmIndex >= 0) {
++            mCi.setUiccSubscription(gsmIndex, true, null);
++        }
++        if (cdmaIndex >= 0) {
++            mCi.setUiccSubscription(cdmaIndex, true, null);
++        }
++    }
++
+     /**
+      * Notifies handler of any transition into State.ABSENT
+      */
+-- 
+2.7.4
+

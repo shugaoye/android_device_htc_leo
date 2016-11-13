@@ -1,0 +1,36 @@
+From 64d49f25a91899f2bb6d297cc32f146d858571bb Mon Sep 17 00:00:00 2001
+From: Arne Coucheron <arco68@gmail.com>
+Date: Mon, 19 Sep 2016 06:53:52 +0200
+Subject: [PATCH 6/6] Telephony: Use regular poll state when radio off for RIL
+ versions < 10
+
+The modemTriggeredPollState breaks airplane mode on some devices.
+Although the UI shows that airplane mode is activated, the fact is that
+the radio remains active and in service. By using original AOSP pollState()
+here, service state in sim status shows correctly radio off.
+
+Change-Id: If2ab5b088a13b1a159e01f82fbea1f58a77b64cd
+---
+ src/java/com/android/internal/telephony/ServiceStateTracker.java | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/java/com/android/internal/telephony/ServiceStateTracker.java b/src/java/com/android/internal/telephony/ServiceStateTracker.java
+index ab74161..eebeb55 100644
+--- a/src/java/com/android/internal/telephony/ServiceStateTracker.java
++++ b/src/java/com/android/internal/telephony/ServiceStateTracker.java
+@@ -953,7 +953,11 @@ public class ServiceStateTracker extends Handler {
+                 // This will do nothing in the 'radio not available' case
+                 setPowerStateToDesired();
+                 // These events are modem triggered, so pollState() needs to be forced
+-                modemTriggeredPollState();
++                if (mCi.getRilVersion() >= 10) {
++                    modemTriggeredPollState();
++                } else {
++                    pollState();
++                }
+                 break;
+ 
+             case EVENT_NETWORK_STATE_CHANGED:
+-- 
+2.7.4
+

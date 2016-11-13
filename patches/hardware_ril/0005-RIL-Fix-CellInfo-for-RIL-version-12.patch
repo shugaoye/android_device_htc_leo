@@ -1,0 +1,48 @@
+From ae09c9ff3bb8d72129202535bb19d31d4c8dc5f5 Mon Sep 17 00:00:00 2001
+From: Gabriele M <moto.falcon.git@gmail.com>
+Date: Wed, 28 Sep 2016 11:06:11 +0200
+Subject: [PATCH 5/5] RIL: Fix CellInfo for RIL version < 12
+
+In version 12 the CellIdentity structure was extended. Since
+CellIdentity and CellSignalStrength are put one after the other
+in the same Parcel, before we update CellSignalStrength we need
+to write the default value of the unsupported entries so that we
+write CellSignalStrength in the right place.
+
+Change-Id: I618830e58eb40e1cd517f9789b286960cef0da9a
+---
+ libril/ril.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libril/ril.cpp b/libril/ril.cpp
+index 62e8c4c..cc42143 100644
+--- a/libril/ril.cpp
++++ b/libril/ril.cpp
+@@ -3410,6 +3410,8 @@ static int responseCellInfoListV6(Parcel &p, void *response, size_t responselen)
+                 p.writeInt32(p_cur->CellInfo.gsm.cellIdentityGsm.mnc);
+                 p.writeInt32(p_cur->CellInfo.gsm.cellIdentityGsm.lac);
+                 p.writeInt32(p_cur->CellInfo.gsm.cellIdentityGsm.cid);
++                p.writeInt32(INT_MAX); /* skip arfcn */
++                p.writeInt32(INT_MAX); /* skip bsic */
+                 p.writeInt32(p_cur->CellInfo.gsm.signalStrengthGsm.signalStrength);
+                 p.writeInt32(p_cur->CellInfo.gsm.signalStrengthGsm.bitErrorRate);
+                 break;
+@@ -3420,6 +3422,7 @@ static int responseCellInfoListV6(Parcel &p, void *response, size_t responselen)
+                 p.writeInt32(p_cur->CellInfo.wcdma.cellIdentityWcdma.lac);
+                 p.writeInt32(p_cur->CellInfo.wcdma.cellIdentityWcdma.cid);
+                 p.writeInt32(p_cur->CellInfo.wcdma.cellIdentityWcdma.psc);
++                p.writeInt32(INT_MAX); /* skip uarfcn */
+                 p.writeInt32(p_cur->CellInfo.wcdma.signalStrengthWcdma.signalStrength);
+                 p.writeInt32(p_cur->CellInfo.wcdma.signalStrengthWcdma.bitErrorRate);
+                 break;
+@@ -3444,6 +3447,7 @@ static int responseCellInfoListV6(Parcel &p, void *response, size_t responselen)
+                 p.writeInt32(p_cur->CellInfo.lte.cellIdentityLte.ci);
+                 p.writeInt32(p_cur->CellInfo.lte.cellIdentityLte.pci);
+                 p.writeInt32(p_cur->CellInfo.lte.cellIdentityLte.tac);
++                p.writeInt32(INT_MAX); /* skip earfcn */
+ 
+                 p.writeInt32(p_cur->CellInfo.lte.signalStrengthLte.signalStrength);
+                 p.writeInt32(p_cur->CellInfo.lte.signalStrengthLte.rsrp);
+-- 
+2.7.4
+

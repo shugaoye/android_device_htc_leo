@@ -1,0 +1,62 @@
+From 24920b37dfed276f93ec7b04c465eb7c9fadc52a Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <cyanogenmod@cerqueira.org>
+Date: Fri, 18 Oct 2013 16:26:06 +0100
+Subject: [PATCH 2/5] rild: Weaken some symbols
+
+rild: Weaken the RIL_setRilSocketName symbol
+
+custom libril implementations won't have it, but its lack isn't
+fatal outside of multi-SIM
+
+Change-Id: If8312078921bb4ed756dcd86e17e85847638c155
+
+rild: Unbreak multi-SIM socket name
+
+Change-Id: Icae742c42c45726105d1a9e07a26bc4d10cc82bf
+
+Weaken external rild symbol.
+
+Not all libril will have this
+
+Change-Id: I3da165f5cf779a02c7eb168d6e3c9b398d284835
+---
+ rild/rild.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/rild/rild.c b/rild/rild.c
+index ce1adba..7dc7a34 100644
+--- a/rild/rild.c
++++ b/rild/rild.c
+@@ -48,7 +48,7 @@ static void usage(const char *argv0) {
+     exit(EXIT_FAILURE);
+ }
+ 
+-extern char rild[MAX_SOCKET_NAME_LENGTH];
++extern char rild[MAX_SOCKET_NAME_LENGTH] __attribute__((weak));
+ 
+ extern void RIL_register (const RIL_RadioFunctions *callbacks);
+ 
+@@ -73,6 +73,7 @@ extern void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
+ extern void RIL_requestTimedCallback (RIL_TimedCallback callback,
+         void *param, const struct timeval *relativeTime);
+ 
++extern void RIL_setRilSocketName(char * s) __attribute__((weak));
+ 
+ static struct RIL_Env s_rilEnv = {
+     RIL_onRequestComplete,
+@@ -184,7 +185,11 @@ int main(int argc, char **argv) {
+     }
+     if (strncmp(clientId, "0", MAX_CLIENT_ID_LENGTH)) {
+         strlcat(rild, clientId, MAX_SOCKET_NAME_LENGTH);
+-        RIL_setRilSocketName(rild);
++        if (RIL_setRilSocketName) {
++            RIL_setRilSocketName(rild);
++        } else {
++            RLOGE("Trying to instantiate multiple rild sockets without a compatible libril!");
++        }
+     }
+ 
+     if (rilLibPath == NULL) {
+-- 
+2.7.4
+

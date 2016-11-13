@@ -1,0 +1,93 @@
+From 3867a96d68fd09688084a98f2fbedb4783419c41 Mon Sep 17 00:00:00 2001
+From: maniacx <macs18max@gmail.com>
+Date: Mon, 14 Nov 2016 00:03:51 +0400
+Subject: [PATCH 1/5] Revert "rild: Don't use the clientId argument with
+ non-qcom hardware"
+
+This reverts commit cee2127072e82be3d46a41e5c88ac136def65889.
+---
+ rild/rild.c | 29 +++--------------------------
+ 1 file changed, 3 insertions(+), 26 deletions(-)
+
+diff --git a/rild/rild.c b/rild/rild.c
+index 04f4a87..ce1adba 100644
+--- a/rild/rild.c
++++ b/rild/rild.c
+@@ -48,9 +48,7 @@ static void usage(const char *argv0) {
+     exit(EXIT_FAILURE);
+ }
+ 
+-#ifdef QCOM_HARDWARE
+-extern char rild[MAX_SOCKET_NAME_LENGTH] __attribute__((weak));
+-#endif
++extern char rild[MAX_SOCKET_NAME_LENGTH];
+ 
+ extern void RIL_register (const RIL_RadioFunctions *callbacks);
+ 
+@@ -75,7 +73,6 @@ extern void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
+ extern void RIL_requestTimedCallback (RIL_TimedCallback callback,
+         void *param, const struct timeval *relativeTime);
+ 
+-extern void RIL_setRilSocketName(char * s) __attribute__((weak));
+ 
+ static struct RIL_Env s_rilEnv = {
+     RIL_onRequestComplete,
+@@ -179,7 +176,6 @@ int main(int argc, char **argv) {
+         }
+     }
+ 
+-#ifdef QCOM_HARDWARE
+     if (clientId == NULL) {
+         clientId = "0";
+     } else if (atoi(clientId) >= MAX_RILDS) {
+@@ -187,13 +183,9 @@ int main(int argc, char **argv) {
+         exit(0);
+     }
+     if (strncmp(clientId, "0", MAX_CLIENT_ID_LENGTH)) {
+-        if (RIL_setRilSocketName) {
+-            RIL_setRilSocketName(strncat(rild, clientId, MAX_SOCKET_NAME_LENGTH));
+-        } else {
+-            RLOGE("Trying to instantiate multiple rild sockets without a compatible libril!");
+-        }
++        strlcat(rild, clientId, MAX_SOCKET_NAME_LENGTH);
++        RIL_setRilSocketName(rild);
+     }
+-#endif
+ 
+     if (rilLibPath == NULL) {
+         if ( 0 == property_get(LIB_PATH_PROPERTY, libPath, NULL)) {
+@@ -367,11 +359,9 @@ OpenLib:
+         argc = make_argv(args, rilArgv);
+     }
+ 
+-#ifdef QCOM_HARDWARE
+     rilArgv[argc++] = "-c";
+     rilArgv[argc++] = clientId;
+     RLOGD("RIL_Init argc = %d clientId = %s", argc, rilArgv[argc-1]);
+-#endif
+ 
+     // Make sure there's a reasonable argv[0]
+     rilArgv[0] = argv[0];
+@@ -379,19 +369,6 @@ OpenLib:
+     funcs = rilInit(&s_rilEnv, argc, rilArgv);
+     RLOGD("RIL_Init rilInit completed");
+ 
+-#ifdef QCOM_HARDWARE
+-    if (funcs == NULL) {
+-        /* Pre-multi-client qualcomm vendor libraries won't support "-c" either, so
+-         * try again without it. This should only happen on ancient qcoms, so raise
+-         * a big fat warning
+-         */
+-        argc -= 2;
+-        RLOGE("============= Retrying RIL_Init without a client id. This is only required for very old versions,");
+-        RLOGE("============= and you're likely to have more radio breakage elsewhere!");
+-        funcs = rilInit(&s_rilEnv, argc, rilArgv);
+-    }
+-#endif
+-
+     RIL_register(funcs);
+ 
+     RLOGD("RIL_Init RIL_register completed");
+-- 
+2.7.4
+
