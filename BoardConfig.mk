@@ -115,7 +115,7 @@ ifeq ($(HOST_OS),linux)
 endif
 WITH_DEXPREOPT_BOOT_IMG_ONLY ?= true
 TARGET_CPU_SMP := false
-MALLOC_IMPL := dlmalloc
+MALLOC_SVELTE := true
 
 # Recovery
 TARGET_USERIMAGES_USE_F2FS := true
