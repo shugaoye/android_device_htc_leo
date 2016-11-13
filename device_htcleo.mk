@@ -26,6 +26,7 @@ PRODUCT_COPY_FILES += \
 	device/htc/htcleo/ramdisk/logo.rle:root/logo.rle \
 	device/htc/htcleo/ramdisk/fstab.htcleo:root/fstab.htcleo \
 	device/htc/htcleo/ramdisk/init.htcleo.rc:root/init.htcleo.rc \
+	device/htc/htcleo/ramdisk/init.htcleo.power.rc:root/init.htcleo.power.rc \
 	device/htc/htcleo/ramdisk/init.htcleo.usb.rc:root/init.htcleo.usb.rc \
 	device/htc/htcleo/ramdisk/ueventd.htcleo.rc:root/ueventd.htcleo.rc
 
