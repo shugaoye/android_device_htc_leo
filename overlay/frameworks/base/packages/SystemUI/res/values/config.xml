@@ -26,6 +26,15 @@
     <bool name="config_hspa_data_distinguishable">true</bool>
     <!-- Disable expensive shadows -->
     <bool name="config_recents_fake_shadows">true</bool>
+    <!-- The number of app thumbnails we keep in memory -->
+    <integer name="config_recents_max_thumbnail_count">6</integer>
+
+    <!-- The number of app icons we keep in memory -->
+    <integer name="config_recents_max_icon_count">6</integer>
+    <!-- Whether to clip notification contents with a rounded rectangle. Might be expensive on
+         certain GPU's and thus can be turned off with only minimal visual impact. -->
+    <bool name="config_notifications_round_rect_clipping">false</bool>
+
     <!-- Use hardware layers in recents -->
     <bool name="config_recents_use_hardware_layers">true</bool>
 
