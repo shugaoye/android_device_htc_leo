@@ -55,8 +55,9 @@ TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUEDROID_VENDOR_CONF := device/htc/htcleo/bluetooth/libbt_vndcfg.txt
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/htc/htcleo/bluetooth
+BOARD_BLUETOOTH_USES_HCIATTACH_PROPERTY := false
+BOARD_CUSTOM_BT_CONFIG := device/htc/htcleo/bluetooth//vnd_htcleo.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/htc/htcleo/bluetooth/include
 
 # Display
 BOARD_EGL_CFG := device/htc/htcleo/configs/egl.cfg
