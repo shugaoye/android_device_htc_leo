@@ -67,10 +67,10 @@ PRODUCT_PACKAGES += \
 	audio.primary.qsd8k
 
 # Camera
-PRODUCT_PACKAGES += \
-	camera.qsd8k \
-	libshim_camera \
-	libshim_skia
+#PRODUCT_PACKAGES += \
+#	camera.qsd8k \
+#	libshim_camera \
+#	libshim_skia
 
 # Display
 PRODUCT_PACKAGES += \
