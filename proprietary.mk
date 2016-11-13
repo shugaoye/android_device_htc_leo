@@ -53,10 +53,6 @@ PRODUCT_COPY_FILES += \
     device/htc/htcleo/proprietary/etc/firmware/fw_bcmdhd_apsta.bin:system/etc/firmware/fw_bcmdhd_apsta.bin \
     device/htc/htcleo/proprietary/etc/firmware/default.acdb:system/etc/firmware/default.acdb
 
-# Wifi
-PRODUCT_COPY_FILES += \
-    device/htc/htcleo/proprietary/etc/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf
-
 # Radio log
 PRODUCT_COPY_FILES += \
     device/htc/htcleo/proprietary/bin/parse_radio_log:system/bin/parse_radio_log 

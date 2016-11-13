@@ -98,7 +98,7 @@ PRODUCT_PACKAGES += \
 	mkfs.f2fs \
 	fsck.f2fs \
 	make_f2fs \
-	mkf2fsuserimg.sh	
+	mkf2fsuserimg.sh
 
 # Misc
 PRODUCT_PACKAGES += \
@@ -164,15 +164,14 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Properties
 PRODUCT_PROPERTY_OVERRIDES += \
-	wifi.interface=wlan0 \
-	wifi.supplicant_scan_interval=120
+	wifi.interface=wlan0
 
 # Set usb type
 ADDITIONAL_DEFAULT_PROPERTIES += \
-    persist.service.adb.enable=1 \
-    ro.adb.secure=0 \
-    ro.secure=0 \
-    ro.allow.mock.location=1
+	persist.service.adb.enable=1 \
+	ro.adb.secure=0 \
+	ro.secure=0 \
+	ro.allow.mock.location=1
 
 # Permissions
 PRODUCT_COPY_FILES += \

@@ -49,7 +49,6 @@ TARGET_KERNEL_SOURCE := kernel/htc/htcleo
 TARGET_KERNEL_CONFIG := htcleo_defconfig
 BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive
 BOARD_KERNEL_BASE := 0x11800000
-BOARD_KERNEL_NEW_PPPOX := true
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
@@ -127,14 +126,7 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1027604480 # 400M
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 1027604480 # 400M
 BOARD_FLASH_BLOCK_SIZE := 4096
 
-# Ril
-BOARD_USES_LEGACY_RIL := true
-LEGACY_RIL := true
-
 BLOCK_BASED_OTA := false
-
-# Healthd HAL
-#BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
 
 # Recovery
 TARGET_RECOVERY_FSTAB := device/htc/htcleo/ramdisk/fstab.htcleo
