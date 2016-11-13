@@ -49,8 +49,8 @@ PRODUCT_COPY_FILES += \
 # Firmware
 PRODUCT_COPY_FILES += \
     device/htc/htcleo/proprietary/etc/firmware/bcm4329.hcd:system/etc/firmware/bcm4329.hcd \
-    device/htc/htcleo/proprietary/etc/firmware/fw_bcmdhd.bin:system/etc/firmware/fw_bcmdhd.bin \
-    device/htc/htcleo/proprietary/etc/firmware/fw_bcmdhd_apsta.bin:system/etc/firmware/fw_bcmdhd_apsta.bin \
+    device/htc/htcleo/proprietary/etc/firmware/fw_bcmdhd.bin:system/vendor/firmware/fw_bcmdhd.bin \
+    device/htc/htcleo/proprietary/etc/firmware/fw_bcmdhd_apsta.bin:system/vendor/firmware/fw_bcmdhd_apsta.bin \
     device/htc/htcleo/proprietary/etc/firmware/default.acdb:system/etc/firmware/default.acdb
 
 # Radio log
