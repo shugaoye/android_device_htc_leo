@@ -50,6 +50,7 @@ TARGET_KERNEL_SOURCE := kernel/htc/htcleo
 TARGET_KERNEL_CONFIG := htcleo_defconfig
 BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive
 BOARD_KERNEL_BASE := 0x11800000
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
