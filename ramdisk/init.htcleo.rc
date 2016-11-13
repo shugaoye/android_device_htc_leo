@@ -1,18 +1,14 @@
 import init.htcleo.usb.rc
+import init.htcleo.power.rc
 
 on init
-    symlink /sdcard /mnt/sdcard
     symlink /sdcard /storage/sdcard
 
-    write /sys/block/zram0/comp_algorithm lz4
-    write /sys/block/zram0/max_comp_streams 2
-
-#export LD_SHIM_LIBS "/system/lib/hw/camera.qsd8k.so|libshim_camera.so:/system/lib/hw/camera.qsd8k.so|libshim_skia.so"
+#    export LD_SHIM_LIBS "/system/lib/libcamera.so|libshim_camera.so:/system/lib/libcamera.so|libshim_skia.so"
 
 on fs
     # Mount all partitions
     mount_all /fstab.htcleo
-    swapon_all /fstab.htcleo
 
 on post-fs-data
     # create dalvik-cache, so as to enforce our permissions
@@ -20,7 +16,6 @@ on post-fs-data
     mkdir /data/dalvik-cache/arm 0771 system system
 
 on boot
-    mount debugfs /sys/kernel/debug /sys/kernel/debug
 
     # bluetooth power up/down interface
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
@@ -61,41 +56,19 @@ on boot
     symlink /dev/msm_camera/frame0 /dev/msm_camera/frame1
     symlink /dev/msm_camera/config0 /dev/msm_camera/config1
 
-    # camera - just make sure its all writeable
-    chmod 0666 /dev/msm_camera/config0
-    chmod 0666 /dev/msm_camera/config1
-    chmod 0666 /dev/msm_camera/control0
-    chmod 0666 /dev/msm_camera/control1
-    chmod 0666 /dev/msm_camera/frame0
-    chmod 0666 /dev/msm_camera/frame1
-    chmod 0666 /dev/graphics/fb0
-
     # allow net_raw to have access to /dev/socket directory
     chown root net_raw /dev/socket
     chmod 0775 /dev/socket
 
-    # allow system to modify cpufreq control files
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-    chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-    chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-
     # for wireless modem
     chown system system /sys/module/serial/parameters/modem_enabled
     chown system system /dev/cpu_dma_latency
-    chown system system /dev/smd0
-    chown system system /dev/smd1
-    chown system system /dev/smd9
-    chown system system /dev/smd27
     chown system system /dev/ttyHSUSB0
 
     # others
     chown system system /sys/camera_led_status/led_hotspot_status
     chown radio system  /sys/camera_led_status/led_ril_status
     chown system system /sys/camera_led_status/led_wimax_status
-    chown radio radio   /sys/module/pm2/parameters/idle_sleep_mode
 
     chmod 0666 /dev/rfkill
     #chmod 0666 /dev/q6venc
@@ -118,23 +91,13 @@ on boot
     chmod 666 /dev/msm_pcm_in
     chmod 666 /dev/msm_pcm_out
 
-    chmod 666 /dev/qmi0
-    chmod 666 /dev/qmi1
-    chmod 666 /dev/qmi2
-
     chmod 666 /etc/bluez/audio.conf
     chmod 666 /etc/bluez/hcid.conf 
     chmod 666 /etc/bluez/input.conf
 
-    chmod 0777 /dev/smd0
-    chmod 0777 /dev/smd1
-    chmod 0777 /dev/smd27
     chmod 0777 /dev/msm_camera
-    chmod 0777 /dev/akm8973_aot
-    chmod 0777 /dev/akm8973_daemon
     chmod 0777 /dev/cpu_dma_latency
     chmod 0777 /dev/lightsensor
-    chmod 0777 /dev/bma150
     chmod 0777 /dev/kgsl
     chmod 0777 /dev/cm3602
     chmod 0777 /dev/htc-acoustic
@@ -148,9 +111,6 @@ on boot
     # =============================
     # end of permissions for htcleo
     # =============================
-
-    # enable the GPS
-    setprop ro.ril.def.agps.mode 2
 
     # performance tweaks for flash
     write /sys/block/mtdblock3/bdi/read_ahead_kb 4
@@ -174,7 +134,6 @@ service akmd /system/bin/akmd
     class main
     user compass
     group compass misc input
-    seclabel u:r:akmd:s0
 
 service wpa_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
@@ -185,20 +144,3 @@ service wpa_supplicant /system/bin/wpa_supplicant \
     disabled
     oneshot
 
-service dspcrashd /system/bin/dspcrashd
-
-on property:sys.perf.profile=0
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 384000
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 998400
-    setprop sys.io.scheduler noop
-
-on property:sys.perf.profile=1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 245000
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 998400
-    setprop sys.io.scheduler bfq
-
-on property:init.svc.bootanim=running
-    setprop sys.perf.profile 0
-
-on property:init.svc.bootanim=stopped
-    setprop sys.perf.profile 1
