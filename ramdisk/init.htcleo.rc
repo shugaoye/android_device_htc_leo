@@ -14,6 +14,8 @@ on post-fs-data
     # create dalvik-cache, so as to enforce our permissions
     mkdir /data/dalvik-cache 0771 root root
     mkdir /data/dalvik-cache/arm 0771 system system
+    mkdir /data/cache 0771 system cache
+    symlink /data/cache /cache
 
 on boot
 
