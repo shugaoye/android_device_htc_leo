@@ -140,3 +140,40 @@ BLOCK_BASED_OTA := false
 # Recovery
 TARGET_RECOVERY_FSTAB := device/htc/htcleo/ramdisk/fstab.htcleo
 RECOVERY_FSTAB_VERSION := 2
+
+#
+# TWRP configuration START
+#
+# Platform, disable below options first
+# TARGET_NO_RADIOIMAGE := true
+# TARGET_BOARD_PLATFORM := sc1
+
+BOARD_KERNEL_BASE := 0x80000000
+
+# Redefine these two variables, since they are defined in device/generic/common/BoardConfig.mk
+TARGET_NO_KERNEL := false
+TARGET_NO_RECOVERY := false
+
+# BOARD_KERNEL_CMDLINE :=
+
+# Recovery:Start
+
+# Use this flag if the board has a ext4 partition larger than 2gb
+BOARD_HAS_LARGE_FILESYSTEM := true
+
+TARGET_USERIMAGES_USE_EXT4 := true
+
+# TWRP specific build flags
+TW_THEME := portrait_mdpi
+DEVICE_RESOLUTION := 600x800
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+RECOVERY_SDCARD_ON_DATA := true
+TW_EXCLUDE_MTP := true
+TWRP_EVENT_LOGGING := true
+# This excludes parted from the build... parted is prebuilt and for arm CPU only
+# BOARD_HAS_NO_REAL_SDCARD := true
+
+#
+# TWRP configuration END
+#
+
