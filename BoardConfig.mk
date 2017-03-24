@@ -158,5 +158,35 @@ BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun0/file"
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.qsd8k
 
 # Recovery
-TARGET_RECOVERY_FSTAB := device/htc/leo/ramdisk/fstab.htcleo
+TARGET_RECOVERY_FSTAB := device/htc/leo/recovery/fstab.htcleo
 RECOVERY_FSTAB_VERSION := 2
+
+#
+# TWRP configuration START
+#
+
+# This is for CM
+RECOVERY_VARIANT := twrp
+
+# Redefine these two variables, since they are defined in device/generic/common/BoardConfig.mk
+TARGET_NO_KERNEL := false
+TARGET_NO_RECOVERY := false
+
+# Recovery:Start
+
+# Use this flag if the board has a ext4 partition larger than 2gb
+BOARD_HAS_LARGE_FILESYSTEM := true
+
+# TWRP specific build flags
+TW_THEME := portrait_hdpi
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+RECOVERY_SDCARD_ON_DATA := true
+TW_EXCLUDE_MTP := true
+TWRP_EVENT_LOGGING := true
+# This excludes parted from the build... parted is prebuilt and for arm CPU only
+BOARD_HAS_NO_REAL_SDCARD := true
+
+#
+# TWRP configuration END
+#
+

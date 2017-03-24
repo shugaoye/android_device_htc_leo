@@ -1,0 +1,15 @@
+on early-init
+    # for /bin/busybox
+    symlink /bin/busybox /bin/sh
+
+service console /sbin/sh
+    class core
+    console
+#    disabled
+#    user shell
+    group shell log
+    seclabel u:r:shell:s0
+
+on property:ro.debuggable=1
+    start console
+
