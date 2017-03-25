@@ -42,6 +42,9 @@ install-recovery:
 snod:
 	cd ../../..;make snod
 
+kernel:
+	cd ../../..;make  -C kernel/htc/leo O=/home/sgye/vol2/home/roger/cm/out/target/product/leo/obj/KERNEL_OBJ ARCH=arm zImage
+
 initrd:
 	cd ../../..;out/host/linux-x86/bin/mkbootfs ${OUT}/system ${OUT}/root | out/host/linux-x86/bin/minigzip > ${OUT}/ramdisk.img
 
