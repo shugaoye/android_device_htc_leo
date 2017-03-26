@@ -16,6 +16,5 @@
 
 # TWRP
 PRODUCT_COPY_FILES += \
-	device/htc/leo/recovery/init.recovery.htcleo.rc:root/init.recovery.htcleo.rc \
-	device/htc/leo/recovery/2860_480x800_light.zip:recovery/root/theme/ui.zip
+	device/htc/leo/recovery/init.recovery.htcleo.rc:root/init.recovery.htcleo.rc
 
