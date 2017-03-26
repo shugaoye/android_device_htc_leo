@@ -190,5 +190,9 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
 	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
 
+# TWRP
+$(call inherit-product, device/htc/leo/recovery/twrp.mk)
+
 # Proprietary
 $(call inherit-product, device/htc/leo/proprietary.mk)
+
