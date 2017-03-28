@@ -181,7 +181,7 @@ BOARD_HAS_LARGE_FILESYSTEM := true
 TW_THEME := portrait_hdpi
 RECOVERY_GRAPHICS_USE_LINELENGTH := true
 RECOVERY_SDCARD_ON_DATA := true
-# TW_EXCLUDE_MTP := true
+TW_EXCLUDE_MTP := true
 # TWRP_EVENT_LOGGING := true
 # This excludes parted from the build... parted is prebuilt and for arm CPU only
 # BOARD_HAS_NO_REAL_SDCARD := true
